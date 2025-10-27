@@ -18,6 +18,8 @@ const app = express();
 const server = http.createServer(app);
 dotenv.config();
 
+const PORT = process.env.PORT || 5000;
+
 // Fix __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +31,7 @@ const reactBuildPath = path.join(__dirname, "../client/build");
 connectdb();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:3000" }))
+app.use(cors({ origin: process.env.CLIENT_URL }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -64,6 +66,6 @@ app.get("*", (req, res) => {
 });
 
 // Start Server
-server.listen(5000, () => {
+server.listen(PORT, () => {
   console.log("server is running on port 5000");
 });
