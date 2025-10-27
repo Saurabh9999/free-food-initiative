@@ -1,0 +1,179 @@
+/* App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  line-height: 1.6;
+}
+nav {
+  background-color: #ff5722;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: right;
+  gap: 20px;
+}
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav ul li a:hover {
+  text-decoration: underline;
+}
+header {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #e8f5e9;
+}
+.section {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+  margin-bottom: 10px;
+  color: #333;
+}
+select, input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+button {
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #ff5722;
+}
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.gallery img {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #222;
+  color: #eee;
+  margin-top: 40px;
+}
+
+.oval-button{
+   text-align: right;     /* Align content to the right */
+      margin: 20px;          /* Optional: spacing from edges */
+}
+#boled{
+      display: inline-block;
+      background-color: #ff5722;  /* Green background */
+      color: white;              /* White text */
+      padding: 10px 30px;        /* Vertical and horizontal padding */
+      border: none;
+      border-radius: 999px;      /* Oval shape */
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 15px;
+      width: 200px;
+    
+}
+
+#boled a {
+  text-decoration: none;
+  color: white;
+}
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  width: 320px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.donate-container {
+  text-align: center;
+  padding: 50px;
+}
+
+.donate-box {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff7e6;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.donate-box input {
+  padding: 10px;
+  width: 100px;
+  margin: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.donate-box button {
+  background: #ff7043;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.donate-box button:hover {
+  background: #ff5722;
+}
