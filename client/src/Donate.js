@@ -1,84 +1,72 @@
-import React, { useState, useMemo } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  useStripe,
-  useElements,
-  PaymentElement,
-} from "@stripe/react-stripe-js";
+import React, { useState } from "react";
+import axios from "axios";
 
-// ✅ Load your Stripe publishable key once
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
-
-// 🔹 Checkout Form Component
-function CheckoutForm() {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-
-    setLoading(true);
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: "http://localhost:3000/success", // ✅ Redirect after payment success
-      },
-    });
-
-    if (error) {
-      alert(error.message);
-    }
-
-    setLoading(false);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <PaymentElement />
-      <button
-        type="submit"
-        disabled={loading || !stripe || !elements}
-        style={styles.payButton}
-      >
-        {loading ? "Processing..." : "Pay Now"}
-      </button>
-    </form>
-  );
-}
-
-// 🔹 Main Donate Component
 export default function Donate() {
   const [amount, setAmount] = useState(100);
-  const [clientSecret, setClientSecret] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // ✅ Memoize options so Elements doesn't re-render unnecessarily
-  const options = useMemo(() => ({ clientSecret }), [clientSecret]);
+  const handleDonate = async (e) => {
+    e.preventDefault();
 
-  const handleDonate = async () => {
-    setLoading(true);
+    if (!amount || amount < 1) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/payment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
+      // ✅ 1. Create order via backend
+      const { data } = await axios.post("http://localhost:5000/api/checkout", {
+        amount,
       });
 
-      const data = await res.json();
-      if (data?.clientSecret) {
-        setClientSecret(data.clientSecret);
+      const { order } = data;
+
+      // ✅ 2. Initialize Razorpay with order details
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: "INR",
+        name: "💖 Food Initiative",
+        description: "Support Our Food Initiative",
+        order_id: order.id,
+         handler: async function (response) {
+    try {
+      // Verify payment via backend
+      const verify = await axios.post(
+        "http://localhost:5000/api/paymentVerification",
+        {
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+        }
+      );
+
+      if (verify.data.success) {
+        window.location.href = `/paymentsuccess?reference=${response.razorpay_payment_id}`;
       } else {
-        alert("Failed to create payment. Please try again.");
+        alert("Payment verification failed!");
       }
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong while creating payment.");
+      console.error("Verification error:", err);
+      alert("Something went wrong during payment verification.");
     }
-    setLoading(false);
+  },
+
+  
+        prefill: {
+          name: "Saurabh",
+          email: "saurabh@example.com",
+        },
+        theme: {
+          color: "#ff5722",
+        },
+      };
+
+      const razor = new window.Razorpay(options);
+      razor.open();
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -86,33 +74,22 @@ export default function Donate() {
       <h1>💖 Support Our Food Initiative</h1>
       <p>Your contribution helps us serve meals to those in need.</p>
 
-      {!clientSecret ? (
-        <div style={styles.donateBox}>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            min="10"
-            style={styles.input}
-          />
-          <button
-            onClick={handleDonate}
-            disabled={loading}
-            style={styles.button}
-          >
-            {loading ? "Please wait..." : `Donate ₹${amount}`}
-          </button>
-        </div>
-      ) : (
-        <Elements stripe={stripePromise} options={options}>
-          <CheckoutForm />
-        </Elements>
-      )}
+      <div style={styles.donateBox}>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          min="10"
+          style={styles.input}
+        />
+        <button onClick={handleDonate} style={styles.button}>
+          Donate ₹{amount}
+        </button>
+      </div>
     </div>
   );
 }
 
-// 🔹 Simple CSS-in-JS styling
 const styles = {
   container: {
     textAlign: "center",
@@ -144,21 +121,5 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
-  },
-  payButton: {
-    marginTop: "20px",
-    backgroundColor: "#ff5722",
-    color: "white",
-    padding: "10px 18px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    width: "100%",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "20px",
   },
 };

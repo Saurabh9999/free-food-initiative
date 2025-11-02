@@ -1,22 +1,14 @@
 {
-  "name": "free-food-initiative",
-  "version": "0.1.0",
+  "name": "free-food-initiative-root",
   "private": true,
-  "homepage": "https://Saurabh9999.github.io/free-food-initiative",
-  "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "5.0.1"
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && nodemon index.js",
+    "client": "cd client && npm start",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install"
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "cd client && npm run build",
-    "deploy": "gh-pages -d client/build"
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.0"
   }
 }

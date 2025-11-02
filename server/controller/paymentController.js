@@ -1,23 +1,59 @@
 // backend/controllers/donateController.js
 import Stripe from "stripe";
-import dotenv from "dotenv";
+import { instance } from "../index.js";
+import crypto from "crypto"
+import { Payment } from "../model/Payment.js";
 
-dotenv.config();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+export const checkout = async (req,res) =>{
+ 
+    const options = {
+  amount: Number(req.body.amount * 100),  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+  currency: "INR",
+//   receipt: "order_rcptid_11"
+};
+   const order = await instance.orders.create(options);
 
-export const  createPaymentIntent  = async (req, res) => {
-  try {
-    const { amount } = req.body;
+  //  console.log(order)
+  console.log("Received body:", req.body);
+   res.status(200).json({
+    success:true,
+    order,
+   });
+}
 
-   const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // convert ₹ to paise
-      currency: "inr",
-      automatic_payment_methods: { enabled: true },
-    });
+ 
+  export const paymentVerification = async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    res.status(200).json({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+  console.log("📩 Verification route hit!");
+  console.log("Received:", req.body);
+
+  // Combine order_id and payment_id
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  // Generate signature using your secret
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
+    .update(body.toString())
+    .digest("hex");
+  
+     const isAuthentic = expectedSignature === razorpay_signature;
+
+if (isAuthentic) {
+  await Payment.create({
+    razorpay_order_id, 
+    razorpay_payment_id, 
+    razorpay_signature
+  });
+
+  res.status(200).json({
+    success: true,
+    paymentId: razorpay_payment_id,
+    message: "Payment verified successfully"
+  });
+}
+else {
+    // ❌ If invalid (possible tampering)
+    res.status(400).json({ success: false, message: "Signature mismatch" });
   }
 };
