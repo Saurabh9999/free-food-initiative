@@ -53,8 +53,8 @@ app.post("/volunteer", registerVolunteer);
 app.get("/users",isAdmin,getAllUsers);
 app.get("/volunteers",isAdmin,getAllVolunteers);
 // app.post("/api/payment",createPaymentIntent);
-app.post("/api/users/forgot-password", forgotPassword);
-app.post("/api/users/reset-password/:token", resetPassword);
+// app.post("/api/users/forgot-password", forgotPassword);
+// app.post("/api/users/reset-password/:token", resetPassword);
 app.put("/update-profile",isAuthenticated,updateProfile)
 
 // 🔹 Serve React frontend (AFTER API routes)
