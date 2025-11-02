@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { user } from "../model/user.js";
+import { User } from "../model/user.js";
 import dotenv from "dotenv";
 
 export const sendCookie = (usr, res, message, statusCode = 200) => {
@@ -31,7 +31,7 @@ export const isAdmin = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, "ytrtydtrdrtdt");
-    const usr = await user.findById(decoded._id);
+    const usr = await User.findById(decoded._id);
 
     if (!usr || usr.role !== "admin") {
       return res.status(403).json({ success: false, message: "Access denied" });
