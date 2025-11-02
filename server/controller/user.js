@@ -1,5 +1,5 @@
 import express from "express"
-import { user } from "../model/user.js"
+import { User } from "../model/user.js"
 import { sendCookie } from "../utils/feature.js";
 import jwt from "jsonwebtoken"
 import bcrypt, { hash } from "bcryptjs";
@@ -17,7 +17,7 @@ export const registerUser = async(req,res) =>{
       });
     }
 
-    let usr = await user.findOne({email})
+    let usr = await User.findOne({email})
 
      if(usr){
     return res.status(404).json({
@@ -27,7 +27,7 @@ export const registerUser = async(req,res) =>{
   }
    const hashedPassword = await bcrypt.hash(password, 10);
     // usr.password = hashedPassword;
-   usr= await user.create({
+   usr= await User.create({
     name,
     email,
     password : hashedPassword,
@@ -41,7 +41,7 @@ export const registerUser = async(req,res) =>{
 export const loginUser = async (req,res) =>{
   const { email,password } = req.body;
 
-  const usr = await user.findOne({email}).select("+password");
+  const usr = await User.findOne({email}).select("+password");
 
    if(!usr){
     return res.status(404).json({
@@ -85,7 +85,7 @@ export const getMyProfile = async (req,res) =>{
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await user.find({ role: { $ne: "admin" } }).select("-password");
+    const users = await User.find({ role: { $ne: "admin" } }).select("-password");
     return res.status(200).json({
       success: true,
       count: users.length,
@@ -118,7 +118,7 @@ export const updateProfile = async (req, res) => {
   try {
     const { name, email, phone } = req.body;
 
-    const updatedUser = await user.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.usr.id,
       { name, email, phone },
       { new: true, runValidators: true }

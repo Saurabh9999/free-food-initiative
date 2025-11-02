@@ -13,7 +13,7 @@ import { isAuthenticated } from "./middleware/auth.js";
 import { registerVolunteer,getAllVolunteers } from "./controller/volunteer.js";
 import { isAdmin } from "./utils/feature.js";
 import { checkout, paymentVerification } from "./controller/paymentController.js";
-import { forgotPassword, resetPassword } from "./controller/authController.js";
+import authRoutes from "./routes/authRoutes.js"
 
 const app = express();
 const server = http.createServer(app);
@@ -37,15 +37,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use("/api/users", authRoutes);
 
 // 🔹 API Routes
 app.get("/api/test", (req, res) => {
   res.send("API is working fine 👍");
 });
-
-app.get("/reset-password/:token", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "reset-password.html"));
-})
 
 
 app.post("/api/users/register", registerUser);
