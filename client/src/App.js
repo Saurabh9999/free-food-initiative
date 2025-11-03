@@ -45,10 +45,8 @@ function App() {
       setStrengthColor("red");
       return;
     }
-
     const strongRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
-
     if (strongRegex.test(password)) {
       setStrength("Strong");
       setStrengthColor("green");
@@ -70,7 +68,6 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone }),
       });
-
       const data = await response.json();
       if (data.success) {
         alert(data.message);
@@ -100,7 +97,6 @@ function App() {
           phone: signupPhone,
         }),
       });
-
       const data = await response.json();
       alert(data.message || "Signup successful!");
       setSignupName("");
@@ -125,7 +121,6 @@ function App() {
           password: loginPassword,
         }),
       });
-
       const data = await response.json();
       if (response.ok) {
         alert("Login successful!");
@@ -134,7 +129,6 @@ function App() {
         setShowModal(false);
         setLoginEmail("");
         setLoginPassword("");
-
         if (data.role === "admin") navigate("/admin");
         else navigate("/profile");
       } else {
@@ -152,7 +146,7 @@ function App() {
           path="/"
           element={
             <>
-              {/* ✅ Navbar with hamburger */}
+              {/* Navbar */}
               <nav>
                 <div className="logo">MyWebsite</div>
                 <div
@@ -161,7 +155,6 @@ function App() {
                 >
                   {menuOpen ? "✖" : "☰"}
                 </div>
-
                 <ul className={menuOpen ? "open" : ""}>
                   <li>
                     <a href="#home" onClick={() => setMenuOpen(false)}>
@@ -175,7 +168,7 @@ function App() {
                   </li>
                   <li>
                     <Link to="/donate" onClick={() => setMenuOpen(false)}>
-                      Donate us
+                      Donate
                     </Link>
                   </li>
                   <li>
@@ -190,30 +183,29 @@ function App() {
                   </li>
                   <li>
                     <Link to="/about" onClick={() => setMenuOpen(false)}>
-                      About us
+                      About
                     </Link>
                   </li>
                 </ul>
               </nav>
 
+              {/* Login/Signup Button */}
               <div className="oval-button">
                 <button id="boled" onClick={toggleModal}>
                   Login/Signup
                 </button>
               </div>
 
-              {/* ✅ Hero Section */}
+              {/* Hero Section */}
               <header id="home">
                 <h1>Free Food Serving Initiative</h1>
                 <p>
                   Our initiative is dedicated to feeding those in need. Every
-                  meal we serve brings hope and kindness. We believe no one
-                  should go to bed hungry — and together, we can make that a
-                  reality.
+                  meal we serve brings hope and kindness.
                 </p>
               </header>
 
-              {/* ✅ Volunteer Section */}
+              {/* Volunteer Section */}
               <div className="section" id="volunteer">
                 <h2>Join as a Volunteer</h2>
                 <form onSubmit={handleVolunteerSubmit}>
@@ -236,7 +228,7 @@ function App() {
                 </form>
               </div>
 
-              {/* ✅ Gallery */}
+              {/* Gallery */}
               <div className="section" id="gallery">
                 <h2>Our Food Serving Moments</h2>
                 <div className="gallery">
@@ -249,13 +241,10 @@ function App() {
 
               <footer>© 2025 Free Food Serving. All rights reserved.</footer>
 
-              {/* ✅ Login / Signup Modal */}
+              {/* Login / Signup Modal */}
               {showModal && (
                 <div className="modal-overlay" onClick={toggleModal}>
-                  <div
-                    className="modal"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="modal" onClick={(e) => e.stopPropagation()}>
                     <h2>{isLogin ? "Login" : "Signup"}</h2>
                     <form onSubmit={isLogin ? handleLogin : handleSignup}>
                       {!isLogin && (
@@ -307,6 +296,29 @@ function App() {
                         </p>
                       )}
 
+                      {/* Forgot Password Button */}
+                      {isLogin && (
+                        <button
+                          type="button"
+                          className="forgot-btn"
+                          onClick={() => {
+                            setShowModal(false);
+                            setShowForgotModal(true);
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#007bff",
+                            cursor: "pointer",
+                            marginTop: "5px",
+                            textDecoration: "underline",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          Forgot Password?
+                        </button>
+                      )}
+
                       <button type="submit">
                         {isLogin ? "Login" : "Signup"}
                       </button>
@@ -324,16 +336,13 @@ function App() {
                 </div>
               )}
 
-              {/* ✅ Forgot Password Modal */}
+              {/* Forgot Password Modal */}
               {showForgotModal && (
                 <div
                   className="modal-overlay"
                   onClick={() => setShowForgotModal(false)}
                 >
-                  <div
-                    className="modal"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="modal" onClick={(e) => e.stopPropagation()}>
                     <h2>Forgot Password</h2>
                     <form
                       onSubmit={async (e) => {

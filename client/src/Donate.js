@@ -14,7 +14,7 @@ export default function Donate() {
 
     try {
       // ✅ 1. Create order via backend
-      const { data } = await axios.post("http://localhost:5000/api/checkout", {
+      const { data } = await axios.post("http://localhost/5000/api/checkout", {
         amount,
       });
 
@@ -32,7 +32,7 @@ export default function Donate() {
     try {
       // Verify payment via backend
       const verify = await axios.post(
-        "http://localhost:5000/api/paymentVerification",
+        "http://localhost/5000/api/paymentVerification",
         {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,

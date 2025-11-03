@@ -1,50 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-export default function ResetPasswordModal() {
+export default function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
-
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
-  const [strength, setStrength] = useState(""); // password strength state
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Password strength checker
-  const checkPasswordStrength = (password) => {
-    if (password.length < 6) return "Weak";
-    const strongRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
-
-    if (strongRegex.test(password)) return "Strong";
-    return "Medium";
-  };
-
-  useEffect(() => {
-    setStrength(checkPasswordStrength(password));
-  }, [password]);
-
-  const handleReset = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      setMessage("❌ Passwords do not match!");
+    if (password !== confirm) {
+      setMessage("Passwords do not match!");
       return;
     }
 
-    // ✅ Frontend validation before sending request
-    const strongPassword =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
-    if (!strongPassword.test(password)) {
-      setMessage(
-        "⚠️ Password must be at least 8 characters, include uppercase, lowercase, number, and special symbol."
-      );
-      return;
-    }
-
+    setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/reset-password/${token}`,
+        `http://localhost:5000/api/users/reset-password/${token}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -54,84 +29,78 @@ export default function ResetPasswordModal() {
       const data = await res.json();
       setMessage(data.message);
 
-      if (data.message.toLowerCase().includes("successful")) {
-        setTimeout(() => navigate("/"), 1500); // redirect after 1.5s
+      if (res.ok) {
+        setTimeout(() => navigate("/"), 1500);
       }
     } catch (err) {
-      setMessage("❌ Something went wrong. Try again.");
-    }
-  };
-
-  useEffect(() => {
-    if (!token) navigate("/");
-  }, [token, navigate]);
-
-  // ✅ Get color for strength meter
-  const getStrengthColor = () => {
-    switch (strength) {
-      case "Weak":
-        return "red";
-      case "Medium":
-        return "orange";
-      case "Strong":
-        return "green";
-      default:
-        return "#ccc";
+      setMessage("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <h2>Reset Your Password</h2>
-        {message && <p className="message">{message}</p>}
-
-        <form onSubmit={handleReset}>
+    <div style={styles.overlay}>
+      <div style={styles.modal}>
+        <h2>Reset Password</h2>
+        {message && <p style={styles.message}>{message}</p>}
+        <form onSubmit={handleSubmit}>
           <input
             type="password"
-            placeholder="New Password"
+            placeholder="New password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={styles.input}
             required
           />
-
-          {/* ✅ Password strength indicator */}
-          {password && (
-            <p
-              style={{
-                color: getStrengthColor(),
-                fontWeight: "bold",
-                marginTop: "4px",
-              }}
-            >
-              Strength: {strength}
-            </p>
-          )}
-
           <input
             type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            style={styles.input}
             required
           />
-
-          <button
-            type="submit"
-            style={{
-              backgroundColor: "#ff5722",
-              color: "white",
-              padding: "10px",
-              border: "none",
-              borderRadius: "5px",
-              marginTop: "10px",
-              cursor: "pointer",
-            }}
-          >
-            Reset Password
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Updating..." : "Reset Password"}
           </button>
         </form>
       </div>
     </div>
   );
 }
+
+const styles = {
+  overlay: {
+    background: "rgba(0,0,0,0.5)",
+    height: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    background: "#fff",
+    padding: "30px",
+    borderRadius: "10px",
+    width: "90%",
+    maxWidth: "400px",
+    textAlign: "center",
+  },
+  input: {
+    width: "100%",
+    padding: "10px",
+    margin: "8px 0",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+  },
+  button: {
+    width: "100%",
+    padding: "10px",
+    background: "#ff5722",
+    border: "none",
+    color: "#fff",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+  message: { color: "red" },
+};
