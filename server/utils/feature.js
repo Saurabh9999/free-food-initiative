@@ -3,12 +3,16 @@ import { User } from "../model/user.js";
 import dotenv from "dotenv";
 
 export const sendCookie = (usr, res, message, statusCode = 200) => {
-  const token = jwt.sign({ _id: usr._id }, process.env.JWT_SECRET);
+  const token = jwt.sign({ _id: usr._id }, process.env.JWT_SECRET ,{
+    expiresIn: "15m",
+  });
 
   res.status(statusCode)
     .cookie("token", token, {
       httpOnly: true,
       maxAge: 15 * 60 * 1000,
+      sameSite: "Strict",
+      secure: process.env.NODE_ENV === "production",
     })
     .json({
       success: true,
@@ -30,7 +34,7 @@ export const isAdmin = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
 
-    const decoded = jwt.verify(token, "ytrtydtrdrtdt");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const usr = await User.findById(decoded._id);
 
     if (!usr || usr.role !== "admin") {
