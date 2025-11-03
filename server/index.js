@@ -33,10 +33,15 @@ connectdb();
 
 // Middleware
 // app.use(cors({ origin: process.env.CLIENT_URL }))
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL, // e.g. "https://free-food-initiative-frontend.onrender.com"
+    credentials: true, // Allow cookies
+  })
+);
 app.use("/api/users", authRoutes);
 
 // 🔹 API Routes
