@@ -7,7 +7,7 @@ export default function Admin() {
   const [view, setView] = useState(""); // "users" or "volunteers"
 
   const fetchUsers = () => {
-    fetch("/users", {
+    fetch(`${process.env.REACT_APP_API_URL}/users`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((res) => res.json())
@@ -16,7 +16,7 @@ export default function Admin() {
   };
 
   const fetchVolunteers = () => {
-    fetch("/volunteers", {
+    fetch(`${process.env.REACT_APP_API_URL}/volunteers`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((res) => res.json())
