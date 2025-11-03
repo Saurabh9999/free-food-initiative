@@ -63,12 +63,17 @@ function App() {
   const handleVolunteerSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/volunteer", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/volunteer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, phone }),
       });
-      const data = await response.json();
+      let data = {};
+    try {
+      data = await response.json(); // parse safely
+    } catch {
+      data = { success: false, message: "Server did not return valid JSON" };
+    }
       if (data.success) {
         alert(data.message);
         setName("");
@@ -87,7 +92,7 @@ function App() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +102,12 @@ function App() {
           phone: signupPhone,
         }),
       });
-      const data = await response.json();
+        let data = {};
+    try {
+      data = await response.json(); // parse safely
+    } catch {
+      data = { success: false, message: "Server did not return valid JSON" };
+    }
       alert(data.message || "Signup successful!");
       setSignupName("");
       setSignupEmail("");
@@ -113,7 +123,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/users/login", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -121,7 +131,12 @@ function App() {
           password: loginPassword,
         }),
       });
-      const data = await response.json();
+      let data = {};
+    try {
+      data = await response.json(); // try parsing JSON
+    } catch {
+      data = { success: false, message: "Server did not return valid JSON" };
+    }
       if (response.ok) {
         alert("Login successful!");
         localStorage.setItem("token", data.token);
