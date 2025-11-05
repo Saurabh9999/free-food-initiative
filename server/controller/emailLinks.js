@@ -4,10 +4,11 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { User } from "../model/user.js";
 
-const router = express.Router();
+// const router = express.Router();
 
 // 🟢 Step 1: Send reset email
-router.post("/forgot-password", async (req, res) => {
+
+ export const forgotPassword =  async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -20,7 +21,7 @@ router.post("/forgot-password", async (req, res) => {
     // Save hashed token + expiry
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
-    await userser.save();
+    await user.save();
 
     // Create reset URL
     const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
@@ -54,34 +55,36 @@ router.post("/forgot-password", async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Error sending email" });
   }
-});
+};
 
 // 🟢 Step 2: Reset password using token
-router.post("/reset-password/:token", async (req, res) => {
-  try {
-    const { password } = req.body;
-    const { token } = req.params;
 
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+export const resetPassword = async (req, res) => {
+  
+   try {
+       const { password } = req.body;
+       const { token } = req.params;
+   
+       const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+   
+       const user = await User.findOne({
+         resetPasswordToken: hashedToken,
+         resetPasswordExpire: { $gt: Date.now() },
+       });
+   
+       if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+   
+       user.password = password;
+       user.resetPasswordToken = undefined;
+       user.resetPasswordExpire = undefined;
+       await user.save();
+   
+       res.json({ message: "Password reset successful!" });
+     } catch (err) {
+       console.error(err);
+       res.status(500).json({ message: "Something went wrong" });
+     }
+   }
 
-    const user = await User.findOne({
-      resetPasswordToken: hashedToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
-
-    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
-
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
-
-    res.json({ message: "Password reset successful!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Something went wrong" });
-  }
-});
-
-export default router;
+// router.post("/reset-password/:token", )
 

@@ -7,18 +7,12 @@ function Profile() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
   const navigate = useNavigate();
 
+  // ✅ Fetch profile from backend using cookie
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/me`, { credentials: "include" });
+        const data = await res.json();
         if (data.success) {
           setUser(data.usr);
           setFormData({
@@ -26,36 +20,40 @@ function Profile() {
             email: data.usr.email,
             phone: data.usr.phone,
           });
+        } else {
+          navigate("/"); // redirect if not authenticated
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
+        navigate("/"); // redirect on error
       }
     };
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
-  // ✅ Logout Function
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/"); // redirect to login page
+  // ✅ Logout using cookie
+  const handleLogout = async () => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL}/logout`, { method: "GET", credentials: "include" });
+      navigate("/"); // redirect to home/login
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
-  // ✅ Handle Input Change
+  // ✅ Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle Save Profile
+  // ✅ Save profile updates
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/update-profile", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/update-profile`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
+        credentials: "include", // send cookie
       });
       const data = await res.json();
       if (data.success) {
@@ -65,8 +63,8 @@ function Profile() {
       } else {
         alert(data.message || "Failed to update");
       }
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch (err) {
+      console.error("Error updating profile:", err);
       alert("Error updating profile");
     }
   };
@@ -85,7 +83,7 @@ function Profile() {
         position: "relative",
       }}
     >
-      {/* 🔹 Logout Button */}
+      {/* Logout Button */}
       <button
         onClick={handleLogout}
         style={{
@@ -151,10 +149,7 @@ function Profile() {
             <p><strong>Name:</strong> {usr.name}</p>
             <p><strong>Email:</strong> {usr.email}</p>
             <p><strong>Phone:</strong> {usr.phone}</p>
-            <button
-              onClick={() => setEditMode(true)}
-              style={editButtonStyle}
-            >
+            <button onClick={() => setEditMode(true)} style={editButtonStyle}>
               Edit Profile
             </button>
           </>
@@ -164,7 +159,7 @@ function Profile() {
   );
 }
 
-// ✅ Styling Helpers
+// ✅ Styling
 const inputStyle = {
   width: "100%",
   padding: "10px",
@@ -187,7 +182,7 @@ const saveButtonStyle = {
 const editButtonStyle = {
   marginTop: "20px",
   width: "100%",
-  background: "#2563eb",
+  background: "#ff7043",
   color: "white",
   border: "none",
   padding: "10px",

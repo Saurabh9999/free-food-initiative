@@ -1,4 +1,3 @@
-// App.js
 import "./App.css";
 import { useState } from "react";
 import { Route, Routes, useNavigate, Link } from "react-router-dom";
@@ -66,14 +65,17 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/volunteer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // include cookies
         body: JSON.stringify({ name, email, phone }),
       });
+
       let data = {};
-    try {
-      data = await response.json(); // parse safely
-    } catch {
-      data = { success: false, message: "Server did not return valid JSON" };
-    }
+      try {
+        data = await response.json();
+      } catch {
+        data = { success: false, message: "Server did not return valid JSON" };
+      }
+
       if (data.success) {
         alert(data.message);
         setName("");
@@ -95,6 +97,7 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // important for cookies
         body: JSON.stringify({
           name: signupName,
           email: signupEmail,
@@ -102,12 +105,14 @@ function App() {
           phone: signupPhone,
         }),
       });
-        let data = {};
-    try {
-      data = await response.json(); // parse safely
-    } catch {
-      data = { success: false, message: "Server did not return valid JSON" };
-    }
+
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = { success: false, message: "Server did not return valid JSON" };
+      }
+
       alert(data.message || "Signup successful!");
       setSignupName("");
       setSignupEmail("");
@@ -126,21 +131,23 @@ function App() {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // <-- key change
         body: JSON.stringify({
           email: loginEmail,
           password: loginPassword,
         }),
       });
+
       let data = {};
-    try {
-      data = await response.json(); // try parsing JSON
-    } catch {
-      data = { success: false, message: "Server did not return valid JSON" };
-    }
+      try {
+        data = await response.json();
+      } catch {
+        data = { success: false, message: "Server did not return valid JSON" };
+      }
+
       if (response.ok) {
         alert("Login successful!");
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);
+        // token now comes as cookie; no need to store in localStorage
         setShowModal(false);
         setLoginEmail("");
         setLoginPassword("");
@@ -311,7 +318,6 @@ function App() {
                         </p>
                       )}
 
-                      {/* Forgot Password Button */}
                       {isLogin && (
                         <button
                           type="button"
@@ -366,9 +372,8 @@ function App() {
                           const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/forgot-password`,
                             {
                               method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                              },
+                              headers: { "Content-Type": "application/json" },
+                              credentials: "include",
                               body: JSON.stringify({ email: forgotEmail }),
                             }
                           );
@@ -399,7 +404,6 @@ function App() {
           }
         />
 
-        {/* Other Pages */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/thankyou" element={<ThankYou />} />
         <Route path="/about" element={<About />} />

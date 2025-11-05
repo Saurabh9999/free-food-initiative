@@ -11,7 +11,8 @@ export const sendCookie = (usr, res, message, statusCode = 200) => {
     .cookie("token", token, {
       httpOnly: true,
       maxAge: 15 * 60 * 1000,
-      sameSite: "Strict",
+      sameSite: "Lax",
+      secure: false,     // ✅ set false for localhost (true only in production)
       secure: process.env.NODE_ENV === "production",
     })
     .json({
@@ -28,8 +29,11 @@ export const sendCookie = (usr, res, message, statusCode = 200) => {
 };
 
 export const isAdmin = async (req, res, next) => {
+
   try {
-    const { token } = req.cookies;
+
+    console.log("Cookies received:", req.cookies);
+    const { token } = req.cookies.token;
     if (!token) {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
@@ -41,7 +45,7 @@ export const isAdmin = async (req, res, next) => {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
-    req.user = usr;
+    req.usr = usr;
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: "Invalid token" });

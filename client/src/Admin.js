@@ -1,33 +1,48 @@
+// Admin.js
 import React, { useEffect, useState } from "react";
-import "./Admin.css"; // Create this CSS file
+import "./Admin.css";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function Admin() {
   const [users, setUsers] = useState([]);
   const [volunteers, setVolunteers] = useState([]);
   const [view, setView] = useState(""); // "users" or "volunteers"
 
-  const fetchUsers = () => {
-    fetch(`${process.env.REACT_APP_API_URL}/users`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setUsers(data.users || []))
-      .catch((err) => console.error(err));
-  };
-
-  const fetchVolunteers = () => {
-    fetch(`${process.env.REACT_APP_API_URL}/volunteers`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setVolunteers(data.volunteers || []))
-      .catch((err) => console.error(err));
-  };
-
   useEffect(() => {
+    // Fetch Users if view is "users"
+    const fetchUsers = async () => {   
+      try {
+        const res = await fetch(`${API_URL}/users`, {  
+          method: "GET",
+          credentials: "include", // important for cookie auth
+        });
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data = await res.json();
+        setUsers(data.users || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Fetch Volunteers if view is "volunteers"
+    const fetchVolunteers = async () => {
+      try {
+        const res = await fetch(`${API_URL}/volunteers`,{
+          method: "GET",
+          credentials: "include", // important for cookie auth
+        });
+        if (!res.ok) throw new Error("Failed to fetch volunteers");
+        const data = await res.json();
+        setVolunteers(data.volunteers || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     if (view === "users") fetchUsers();
     if (view === "volunteers") fetchVolunteers();
-  }, [view]);
+  }, [view]); // no ESLint warning
 
   return (
     <div className="admin-container">
@@ -49,7 +64,7 @@ export default function Admin() {
         </button>
       </div>
 
-      {/* Conditional Tables */}
+      {/* Users Table */}
       {view === "users" && (
         <div className="table-section">
           <h2>All Users</h2>
@@ -74,7 +89,9 @@ export default function Admin() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="no-data">No users found 😔</td>
+                  <td colSpan="4" className="no-data">
+                    No users found 😔
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -82,6 +99,7 @@ export default function Admin() {
         </div>
       )}
 
+      {/* Volunteers Table */}
       {view === "volunteers" && (
         <div className="table-section">
           <h2>All Volunteers</h2>
@@ -106,7 +124,9 @@ export default function Admin() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="no-data">No volunteers found 😔</td>
+                  <td colSpan="4" className="no-data">
+                    No volunteers found 😔
+                  </td>
                 </tr>
               )}
             </tbody>
