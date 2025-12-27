@@ -170,7 +170,7 @@ function App() {
             <>
               {/* Navbar */}
               <nav>
-                <div className="logo">MyWebsite</div>
+                <div className="logo">Tripara chain</div>
                 <div
                   className="menu-icon"
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -220,7 +220,7 @@ function App() {
 
               {/* Hero Section */}
               <header id="home">
-                <h1>Free Food Serving Initiative</h1>
+                <h1>Tripara organization</h1>
                 <p>
                   Our initiative is dedicated to feeding those in need. Every
                   meal we serve brings hope and kindness.
